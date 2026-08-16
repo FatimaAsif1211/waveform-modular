@@ -2,41 +2,49 @@
 
 
 
-A pixel-perfect, mobile-first conversion of a Figma-style design into a live,
-
-responsive web page. Built with semantic HTML5 and Tailwind CSS (Play CDN).
-
-
-## Screenshot
-
-
-
-\*\*Desktop\*\*
-
-!\[Desktop view](screenshot-desktop.png)
-
-
-
-\*\*Mobile / narrow view\*\*
-
-!\[Mobile view](screenshot-mobile.png)
+A pixel-perfect, mobile-first conversion of a Figma-style design into a live, responsive web page. Built with semantic HTML5 and Tailwind CSS (Play CDN).
 
 
 
 \## Live site
 
+
+
 https://waveform-modular.netlify.app/
+
+
+
+\## Screenshots
+
+
+
+\*\*Desktop\*\*
+
+
+
+!\[Desktop view](screenshot-desktop.png)
+
+
+
+\*\*Narrow / mobile-width view\*\*
+
+
+
+!\[Narrow view](screenshot-mobile.png)
+
 
 
 \## What this is
 
-A landing page for a small eurorack synth-module shop, featuring a hero section
 
-with an animated SVG waveform, a three-item product grid, testimonials, and a footer.
+
+A landing page for a small eurorack synth-module shop, featuring a hero section with an animated SVG waveform, a three-item product grid, testimonials, and a footer.
 
 
 
 \## Stack
+
+
 
 \- Semantic HTML5
 
@@ -48,11 +56,7 @@ with an animated SVG waveform, a three-item product grid, testimonials, and a fo
 
 \## Running locally
 
+
+
 Just open `index.html` in a browser — no install or build step needed.
-
-
-
-\## Screenshot
-
-\_Screenshot added below once deployed.\_
 
