@@ -1,62 +1,31 @@
-\# Waveform Modular — Landing Page
-
-
+﻿# Waveform Modular — Landing Page
 
 A pixel-perfect, mobile-first conversion of a Figma-style design into a live, responsive web page. Built with semantic HTML5 and Tailwind CSS (Play CDN).
 
-
-
-\## Live site
-
-
+## Live site
 
 https://waveform-modular.netlify.app/
 
+## Screenshots
 
+**Desktop**
 
-\## Screenshots
+![Desktop view](screenshot-desktop.png)
 
+**Narrow / mobile-width view**
 
+![Narrow view](screenshot-mobile.png)
 
-\*\*Desktop\*\*
-
-
-
-!\[Desktop view](screenshot-desktop.png)
-
-
-
-\*\*Narrow / mobile-width view\*\*
-
-
-
-!\[Narrow view](screenshot-mobile.png)
-
-
-
-\## What this is
-
-
+## What this is
 
 A landing page for a small eurorack synth-module shop, featuring a hero section with an animated SVG waveform, a three-item product grid, testimonials, and a footer.
 
+## Stack
 
+- Semantic HTML5
+- Tailwind CSS (Play CDN)
+- Google Fonts
 
-\## Stack
-
-
-
-\- Semantic HTML5
-
-\- Tailwind CSS (Play CDN)
-
-\- Google Fonts
-
-
-
-\## Running locally
-
-
+## Running locally
 
 Just open `index.html` in a browser — no install or build step needed.
-
