@@ -7,6 +7,26 @@ A pixel-perfect, mobile-first conversion of a Figma-style design into a live,
 responsive web page. Built with semantic HTML5 and Tailwind CSS (Play CDN).
 
 
+## Screenshot
+
+
+
+\*\*Desktop\*\*
+
+!\[Desktop view](screenshot-desktop.png)
+
+
+
+\*\*Mobile / narrow view\*\*
+
+!\[Mobile view](screenshot-mobile.png)
+
+
+
+\## Live site
+
+https://waveform-modular.netlify.app/
+
 
 \## What this is
 
