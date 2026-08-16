@@ -1,6 +1,6 @@
 ﻿# Waveform Modular — Landing Page
 
-A pixel-perfect, mobile-first conversion of a Figma-style design into a live, responsive web page. Built with semantic HTML5 and Tailwind CSS (Play CDN).
+A responsive landing page built with semantic HTML5 and Tailwind CSS.
 
 ## Live site
 
