@@ -10,16 +10,12 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
+    darkMode: 'class',
     theme: {
       extend: {
         colors: {
-          panel:   '#1C1B19',
-          panel2:  '#232220',
-          rail:    '#141312',
-          ivory:   '#EDE9E3',
-          dim:     '#9C948A',
-          amber:   '#D98E2B',
-          teal:    '#4FA8A0',
+          amber: '#D98E2B',
+          teal:  '#4FA8A0',
         },
         fontFamily: {
           display: ['"Big Shoulders Display"', 'sans-serif'],
@@ -34,11 +30,35 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+<!--
+  Theme colors as CSS variables. This is what actually makes light/dark switch
+  at runtime — Tailwind's own color config is fixed once the page loads, so
+  anything that needs to change live (backgrounds, text) is written using
+  var(--token) instead of a hardcoded Tailwind color class.
+  Light values live in :root (the default). Dark values override them
+  the moment the <html> tag gets a "dark" class — see script.js.
+-->
 <style>
-  html { scroll-behavior: smooth; }
-  body { background-color:#1C1B19; }
+  :root {
+    --panel:  #F6F4EF;
+    --panel2: #FFFFFF;
+    --rail:   #ECE9E2;
+    --ivory:  #201F1C;
+    --dim:    #6B655B;
+    --border: rgba(0,0,0,0.12);
+  }
+  html.dark {
+    --panel:  #1C1B19;
+    --panel2: #232220;
+    --rail:   #141312;
+    --ivory:  #EDE9E3;
+    --dim:    #9C948A;
+    --border: rgba(255,255,255,0.1);
+  }
 
-  /* Faux rack-screw corners on module panels */
+  html { scroll-behavior: smooth; }
+  body { transition: background-color .25s ease, color .25s ease; }
+
   .rack-panel { position: relative; }
   .rack-panel::before,
   .rack-panel::after,
@@ -56,24 +76,14 @@
   .rack-panel .screw-tr { top: 10px; right: 10px; }
   .rack-panel .screw-bl { bottom: 10px; left: 10px; }
 
-  /* LED indicator glow */
-  .led {
-    box-shadow: 0 0 6px 2px currentColor;
-  }
+  .led { box-shadow: 0 0 6px 2px currentColor; }
 
-  /* Waveform draw-in */
   .waveform-path {
     stroke-dasharray: 1400;
     stroke-dashoffset: 1400;
     animation: draw 2.4s cubic-bezier(.5,0,.2,1) forwards;
   }
-  @keyframes draw {
-    to { stroke-dashoffset: 0; }
-  }
-
-  .patch-cable {
-    stroke-dasharray: 6 5;
-  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
 
   @media (prefers-reduced-motion: reduce) {
     .waveform-path { animation: none; stroke-dashoffset: 0; }
@@ -84,29 +94,73 @@
     outline: 2px solid #E8A33D;
     outline-offset: 3px;
   }
+
+  /* FAQ answer collapse: animate max-height instead of hidden,
+     so the open/close has a smooth slide instead of a hard cut */
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+  }
+  .faq-answer.open { max-height: 200px; }
+  .faq-icon { transition: transform .25s ease; }
+  .faq-btn[aria-expanded="true"] .faq-icon { transform: rotate(45deg); }
 </style>
 </head>
 
-<body class="bg-panel text-ivory font-body antialiased">
+<body class="bg-[var(--panel)] text-[var(--ivory)] font-body antialiased">
 
   <!-- ============ HEADER / NAV ============ -->
-  <header class="border-b border-white/10 bg-rail/70 backdrop-blur sticky top-0 z-50">
-    <nav class="max-w-6xl mx-auto px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+  <header class="border-b border-[var(--border)] bg-[var(--rail)] sticky top-0 z-50">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
       <a href="#top" class="flex items-baseline gap-2">
         <span class="font-display font-800 text-xl tracking-wide uppercase">Waveform</span>
         <span class="font-mono text-[11px] text-amber tracking-[0.2em] uppercase">Modular Co.</span>
       </a>
-      <ul class="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-sm text-dim">
-        <li><a href="#modules" class="hover:text-ivory transition-colors">Modules</a></li>
-        <li><a href="#builds" class="hover:text-ivory transition-colors">Build Log</a></li>
-        <li><a href="#signal" class="hover:text-ivory transition-colors">From the Bench</a></li>
+
+      <!-- Desktop links: hidden on mobile, shown from md: up -->
+      <ul class="hidden md:flex items-center gap-x-6 font-mono text-sm text-[var(--dim)]">
+        <li><a href="#modules" class="hover:text-[var(--ivory)] transition-colors">Modules</a></li>
+        <li><a href="#faq" class="hover:text-[var(--ivory)] transition-colors">FAQ</a></li>
+        <li><a href="#signal" class="hover:text-[var(--ivory)] transition-colors">From the Bench</a></li>
         <li>
-          <a href="#modules" class="inline-flex items-center gap-2 rounded-full border border-amber/60 text-amber px-4 py-1.5 hover:bg-amber hover:text-panel transition-colors">
+          <a href="#modules" class="inline-flex items-center gap-2 rounded-full border border-amber/60 text-amber px-4 py-1.5 hover:bg-amber hover:text-[var(--panel)] transition-colors">
             View Rack
           </a>
         </li>
       </ul>
+
+      <div class="flex items-center gap-2">
+        <!-- Dark / light toggle button -->
+        <button id="theme-toggle" type="button" aria-label="Toggle dark mode"
+          class="w-9 h-9 flex items-center justify-center rounded-full border border-[var(--border)] hover:border-amber transition-colors">
+          <!-- Sun icon: shown in dark mode (click to go light) -->
+          <svg id="icon-sun" class="hidden w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+          </svg>
+          <!-- Moon icon: shown in light mode (click to go dark) -->
+          <svg id="icon-moon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8Z"/>
+          </svg>
+        </button>
+
+        <!-- Hamburger button: only visible below md: -->
+        <button id="mobile-menu-btn" type="button" aria-label="Toggle menu" aria-expanded="false"
+          class="md:hidden w-9 h-9 flex items-center justify-center rounded-full border border-[var(--border)]">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M3 12h18M3 18h18"/>
+          </svg>
+        </button>
+      </div>
     </nav>
+
+    <!-- Mobile menu panel: hidden by default, toggled by script.js -->
+    <ul id="mobile-links" class="hidden md:hidden flex-col gap-1 px-6 pb-4 font-mono text-sm text-[var(--dim)] border-t border-[var(--border)]">
+      <li><a href="#modules" class="block py-2 hover:text-[var(--ivory)]">Modules</a></li>
+      <li><a href="#faq" class="block py-2 hover:text-[var(--ivory)]">FAQ</a></li>
+      <li><a href="#signal" class="block py-2 hover:text-[var(--ivory)]">From the Bench</a></li>
+    </ul>
   </header>
 
   <main id="top">
@@ -120,125 +174,159 @@
           <span class="text-amber">touch,</span>
           patched by hand.
         </h1>
-        <p class="mt-6 text-dim text-lg max-w-md">
+        <p class="mt-6 text-[var(--dim)] text-lg max-w-md">
           We build small runs of eurorack modules in a two-person shop outside Karachi —
           every panel drilled, every board hand-soldered, every unit signal-tested before it ships.
         </p>
         <div class="mt-8 flex flex-wrap gap-4">
-          <a href="#modules" class="rounded-md bg-amber text-panel font-mono text-sm font-medium px-6 py-3 hover:bg-ivory transition-colors">
+          <a href="#modules" class="rounded-md bg-amber text-[var(--panel)] font-mono text-sm font-medium px-6 py-3 hover:opacity-90 transition-opacity">
             Shop the Modules
           </a>
-          <a href="#builds" class="rounded-md border border-white/20 font-mono text-sm px-6 py-3 hover:border-white/50 transition-colors">
-            Read the Build Log
+          <a href="#signal" class="rounded-md border border-[var(--border)] font-mono text-sm px-6 py-3 hover:border-amber transition-colors">
+            From the Bench
           </a>
         </div>
         <dl class="mt-10 grid grid-cols-3 gap-6 max-w-sm font-mono">
           <div>
-            <dt class="text-2xl text-ivory font-medium">6HP&ndash;28HP</dt>
-            <dd class="text-xs text-dim uppercase tracking-wide mt-1">module widths</dd>
+            <dt class="text-2xl font-medium">6HP&ndash;28HP</dt>
+            <dd class="text-xs text-[var(--dim)] uppercase tracking-wide mt-1">module widths</dd>
           </div>
           <div>
-            <dt class="text-2xl text-ivory font-medium">340+</dt>
-            <dd class="text-xs text-dim uppercase tracking-wide mt-1">units shipped</dd>
+            <dt class="text-2xl font-medium">340+</dt>
+            <dd class="text-xs text-[var(--dim)] uppercase tracking-wide mt-1">units shipped</dd>
           </div>
           <div>
-            <dt class="text-2xl text-ivory font-medium">100%</dt>
-            <dd class="text-xs text-dim uppercase tracking-wide mt-1">bench tested</dd>
+            <dt class="text-2xl font-medium">100%</dt>
+            <dd class="text-xs text-[var(--dim)] uppercase tracking-wide mt-1">bench tested</dd>
           </div>
         </dl>
       </div>
 
-      <!-- Signature element: animated oscilloscope trace -->
-      <div class="rack-panel bg-panel2 rounded-lg border border-white/10 p-6 sm:p-8">
+      <div class="rack-panel bg-[var(--panel2)] rounded-lg border border-[var(--border)] p-6 sm:p-8">
         <span class="screw-tr"></span><span class="screw-bl"></span>
-        <div class="flex items-center justify-between font-mono text-[11px] text-dim uppercase tracking-wide mb-4">
+        <div class="flex items-center justify-between font-mono text-[11px] text-[var(--dim)] uppercase tracking-wide mb-4">
           <span>Ch. 1 &mdash; VCO Output</span>
           <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-teal led text-teal"></span>Live</span>
         </div>
         <svg viewBox="0 0 500 220" class="w-full h-auto" role="img" aria-label="Oscilloscope trace of a synthesizer waveform">
-          <line x1="0" y1="110" x2="500" y2="110" stroke="#33312d" stroke-width="1"/>
+          <line x1="0" y1="110" x2="500" y2="110" stroke="currentColor" class="text-[var(--border)]" stroke-width="1"/>
           <path class="waveform-path" d="M0,110 C20,40 40,40 60,110 C80,180 100,180 120,110
                    C140,20 160,20 180,110 C200,200 220,200 240,110
                    C260,60 280,60 300,110 C320,160 340,160 360,110
                    C380,30 400,30 420,110 C440,190 460,190 480,110 L500,110"
                 fill="none" stroke="#E8A33D" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
-        <p class="mt-4 font-mono text-xs text-dim leading-relaxed">
+        <p class="mt-4 font-mono text-xs text-[var(--dim)] leading-relaxed">
           Every module leaves the bench with its output traced and archived. This is module <span class="text-teal">VCO&#8209;1</span>, serial 0214.
         </p>
       </div>
     </section>
 
     <!-- ============ MODULES / FEATURES ============ -->
-    <section id="modules" class="border-t border-white/10 bg-rail/40">
+    <section id="modules" class="border-t border-[var(--border)] bg-[var(--rail)]">
       <div class="max-w-6xl mx-auto px-6 py-20">
         <div class="max-w-xl mb-12">
           <p class="font-mono text-xs tracking-[0.3em] text-teal uppercase mb-3">The Rack</p>
           <h2 class="font-display font-700 uppercase text-4xl sm:text-5xl">Three modules. One signal chain.</h2>
-          <p class="mt-4 text-dim">
+          <p class="mt-4 text-[var(--dim)]">
             Start here. These are the modules we ship most, and the ones we recommend for a first patch bay.
           </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          <!-- Module 1 -->
-          <article class="rack-panel bg-panel2 rounded-lg border border-white/10 p-6 flex flex-col">
+          <article class="rack-panel bg-[var(--panel2)] rounded-lg border border-[var(--border)] p-6 flex flex-col">
             <span class="screw-tr"></span><span class="screw-bl"></span>
-            <div class="flex items-center justify-between font-mono text-[11px] text-dim uppercase tracking-wide">
+            <div class="flex items-center justify-between font-mono text-[11px] text-[var(--dim)] uppercase tracking-wide">
               <span>12HP</span>
               <span class="w-2 h-2 rounded-full bg-amber led text-amber"></span>
             </div>
             <h3 class="font-display font-700 uppercase text-2xl mt-4">VCO&#8209;1 Oscillator</h3>
-            <p class="text-dim text-sm mt-2 flex-1">
+            <p class="text-[var(--dim)] text-sm mt-2 flex-1">
               A dual-shape voltage-controlled oscillator with through-zero FM. Tracks 1V/oct within 2 cents across five octaves.
             </p>
-            <dl class="mt-5 font-mono text-xs text-dim space-y-1 border-t border-white/10 pt-4">
-              <div class="flex justify-between"><dt>Current draw</dt><dd class="text-ivory">38mA @ +12V</dd></div>
-              <div class="flex justify-between"><dt>Depth</dt><dd class="text-ivory">32mm</dd></div>
+            <dl class="mt-5 font-mono text-xs text-[var(--dim)] space-y-1 border-t border-[var(--border)] pt-4">
+              <div class="flex justify-between"><dt>Current draw</dt><dd>38mA @ +12V</dd></div>
+              <div class="flex justify-between"><dt>Depth</dt><dd>32mm</dd></div>
             </dl>
           </article>
 
-          <!-- Module 2 -->
-          <article class="rack-panel bg-panel2 rounded-lg border border-white/10 p-6 flex flex-col">
+          <article class="rack-panel bg-[var(--panel2)] rounded-lg border border-[var(--border)] p-6 flex flex-col">
             <span class="screw-tr"></span><span class="screw-bl"></span>
-            <div class="flex items-center justify-between font-mono text-[11px] text-dim uppercase tracking-wide">
+            <div class="flex items-center justify-between font-mono text-[11px] text-[var(--dim)] uppercase tracking-wide">
               <span>8HP</span>
               <span class="w-2 h-2 rounded-full bg-teal led text-teal"></span>
             </div>
             <h3 class="font-display font-700 uppercase text-2xl mt-4">ENV&#8209;2 Envelope</h3>
-            <p class="text-dim text-sm mt-2 flex-1">
+            <p class="text-[var(--dim)] text-sm mt-2 flex-1">
               A four-stage envelope generator with switchable loop mode, so it doubles as a slow LFO when you need one.
             </p>
-            <dl class="mt-5 font-mono text-xs text-dim space-y-1 border-t border-white/10 pt-4">
-              <div class="flex justify-between"><dt>Current draw</dt><dd class="text-ivory">22mA @ +12V</dd></div>
-              <div class="flex justify-between"><dt>Depth</dt><dd class="text-ivory">28mm</dd></div>
+            <dl class="mt-5 font-mono text-xs text-[var(--dim)] space-y-1 border-t border-[var(--border)] pt-4">
+              <div class="flex justify-between"><dt>Current draw</dt><dd>22mA @ +12V</dd></div>
+              <div class="flex justify-between"><dt>Depth</dt><dd>28mm</dd></div>
             </dl>
           </article>
 
-          <!-- Module 3 -->
-          <article class="rack-panel bg-panel2 rounded-lg border border-white/10 p-6 flex flex-col">
+          <article class="rack-panel bg-[var(--panel2)] rounded-lg border border-[var(--border)] p-6 flex flex-col">
             <span class="screw-tr"></span><span class="screw-bl"></span>
-            <div class="flex items-center justify-between font-mono text-[11px] text-dim uppercase tracking-wide">
+            <div class="flex items-center justify-between font-mono text-[11px] text-[var(--dim)] uppercase tracking-wide">
               <span>10HP</span>
               <span class="w-2 h-2 rounded-full bg-amber led text-amber"></span>
             </div>
             <h3 class="font-display font-700 uppercase text-2xl mt-4">FLT&#8209;3 Filter</h3>
-            <p class="text-dim text-sm mt-2 flex-1">
+            <p class="text-[var(--dim)] text-sm mt-2 flex-1">
               A resonant multimode filter, low-pass to high-pass in one sweep, with enough self-oscillation to use as a sine source.
             </p>
-            <dl class="mt-5 font-mono text-xs text-dim space-y-1 border-t border-white/10 pt-4">
-              <div class="flex justify-between"><dt>Current draw</dt><dd class="text-ivory">45mA @ +12V</dd></div>
-              <div class="flex justify-between"><dt>Depth</dt><dd class="text-ivory">30mm</dd></div>
+            <dl class="mt-5 font-mono text-xs text-[var(--dim)] space-y-1 border-t border-[var(--border)] pt-4">
+              <div class="flex justify-between"><dt>Current draw</dt><dd>45mA @ +12V</dd></div>
+              <div class="flex justify-between"><dt>Depth</dt><dd>30mm</dd></div>
             </dl>
           </article>
+        </div>
+      </div>
+    </section>
 
+    <!-- ============ FAQ ACCORDION ============ -->
+    <section id="faq" class="max-w-3xl mx-auto px-6 py-20">
+      <div class="mb-10">
+        <p class="font-mono text-xs tracking-[0.3em] text-teal uppercase mb-3">Before You Order</p>
+        <h2 class="font-display font-700 uppercase text-4xl sm:text-5xl">Frequently asked</h2>
+      </div>
+
+      <div class="space-y-3">
+        <div class="border border-[var(--border)] rounded-lg overflow-hidden">
+          <button type="button" class="faq-btn w-full flex items-center justify-between text-left px-5 py-4 font-mono text-sm" aria-expanded="false">
+            <span>Do modules ship internationally?</span>
+            <span class="faq-icon text-amber text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer px-5">
+            <p class="pb-4 text-sm text-[var(--dim)]">Yes — we ship worldwide via tracked courier. Transit is usually 5–10 business days depending on your region.</p>
+          </div>
+        </div>
+
+        <div class="border border-[var(--border)] rounded-lg overflow-hidden">
+          <button type="button" class="faq-btn w-full flex items-center justify-between text-left px-5 py-4 font-mono text-sm" aria-expanded="false">
+            <span>What's the lead time on a new order?</span>
+            <span class="faq-icon text-amber text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer px-5">
+            <p class="pb-4 text-sm text-[var(--dim)]">In-stock modules ship within 3 days. Batch runs (like the current FLT-3 run) ship once bench-testing finishes — check the Build Log section for live status.</p>
+          </div>
+        </div>
+
+        <div class="border border-[var(--border)] rounded-lg overflow-hidden">
+          <button type="button" class="faq-btn w-full flex items-center justify-between text-left px-5 py-4 font-mono text-sm" aria-expanded="false">
+            <span>Do you offer a warranty?</span>
+            <span class="faq-icon text-amber text-xl leading-none">+</span>
+          </button>
+          <div class="faq-answer px-5">
+            <p class="pb-4 text-sm text-[var(--dim)]">Every module carries a 2-year warranty covering component failure. Physical damage from patching accidents isn't covered, but we'll always take a look.</p>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ============ FROM THE BENCH / TESTIMONIALS ============ -->
-    <section id="signal" class="max-w-6xl mx-auto px-6 py-20">
+    <section id="signal" class="border-t border-[var(--border)] max-w-6xl mx-auto px-6 py-20">
       <div class="max-w-xl mb-12">
         <p class="font-mono text-xs tracking-[0.3em] text-teal uppercase mb-3">From the Bench</p>
         <h2 class="font-display font-700 uppercase text-4xl sm:text-5xl">Patched into other people's racks</h2>
@@ -246,74 +334,87 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <blockquote class="border-l-2 border-amber/60 pl-5">
-          <p class="text-ivory">
-            The VCO tracks better than modules twice the price. It's the first oscillator I don't have to re-tune mid-set.
-          </p>
-          <footer class="mt-3 font-mono text-xs text-dim uppercase tracking-wide">Hina R. &mdash; live performer</footer>
+          <p>The VCO tracks better than modules twice the price. It's the first oscillator I don't have to re-tune mid-set.</p>
+          <footer class="mt-3 font-mono text-xs text-[var(--dim)] uppercase tracking-wide">Hina R. &mdash; live performer</footer>
         </blockquote>
         <blockquote class="border-l-2 border-teal/60 pl-5">
-          <p class="text-ivory">
-            Ordered three modules, got a handwritten test note with the serials and voltages. That's the kind of shop I want to support.
-          </p>
-          <footer class="mt-3 font-mono text-xs text-dim uppercase tracking-wide">Omar F. &mdash; studio owner</footer>
+          <p>Ordered three modules, got a handwritten test note with the serials and voltages. That's the kind of shop I want to support.</p>
+          <footer class="mt-3 font-mono text-xs text-[var(--dim)] uppercase tracking-wide">Omar F. &mdash; studio owner</footer>
         </blockquote>
         <blockquote class="border-l-2 border-amber/60 pl-5">
-          <p class="text-ivory">
-            The filter self-oscillates cleanly enough that I use it as a fourth oscillator. Not what I expected at 10HP.
-          </p>
-          <footer class="mt-3 font-mono text-xs text-dim uppercase tracking-wide">Ayesha K. &mdash; sound designer</footer>
+          <p>The filter self-oscillates cleanly enough that I use it as a fourth oscillator. Not what I expected at 10HP.</p>
+          <footer class="mt-3 font-mono text-xs text-[var(--dim)] uppercase tracking-wide">Ayesha K. &mdash; sound designer</footer>
         </blockquote>
       </div>
     </section>
 
-    <!-- ============ BUILD LOG STRIP ============ -->
-    <section id="builds" class="border-y border-white/10 bg-panel2">
-      <div class="max-w-6xl mx-auto px-6 py-14 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <!-- ============ BUILD LOG + SIGNUP FORM ============ -->
+    <section id="builds" class="border-y border-[var(--border)] bg-[var(--rail)]">
+      <div class="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-2 gap-10 items-start">
         <div>
           <h2 class="font-display font-700 uppercase text-3xl">Next run: FLT&#8209;3, batch of 40</h2>
-          <p class="text-dim mt-2 max-w-lg">Panels are drilled, boards are populated. Bench-testing starts next week &mdash; join the notify list to get first pick.</p>
+          <p class="text-[var(--dim)] mt-2 max-w-lg">Panels are drilled, boards are populated. Bench-testing starts next week &mdash; join the notify list to get first pick.</p>
         </div>
-        <a href="#top" class="shrink-0 rounded-md bg-amber text-panel font-mono text-sm font-medium px-6 py-3 hover:bg-ivory transition-colors">
-          Get Notified
-        </a>
+
+        <!-- Real-time validated signup form -->
+        <form id="notify-form" novalidate class="bg-[var(--panel2)] border border-[var(--border)] rounded-lg p-6">
+          <div class="mb-4">
+            <label for="notify-name" class="block font-mono text-xs text-[var(--dim)] uppercase tracking-wide mb-1">Name</label>
+            <input id="notify-name" type="text" autocomplete="name"
+              class="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm focus:outline-none" />
+            <p id="notify-name-error" class="mt-1 text-xs text-red-500 hidden">Please enter your name.</p>
+          </div>
+          <div class="mb-5">
+            <label for="notify-email" class="block font-mono text-xs text-[var(--dim)] uppercase tracking-wide mb-1">Email</label>
+            <input id="notify-email" type="email" autocomplete="email"
+              class="w-full rounded-md border border-[var(--border)] bg-transparent px-3 py-2 text-sm focus:outline-none" />
+            <p id="notify-email-error" class="mt-1 text-xs text-red-500 hidden">Enter a valid email address.</p>
+          </div>
+          <button type="submit" class="w-full rounded-md bg-amber text-[var(--panel)] font-mono text-sm font-medium px-6 py-3 hover:opacity-90 transition-opacity">
+            Get Notified
+          </button>
+          <p id="notify-success" class="mt-3 text-sm text-teal hidden">Thanks — you're on the list.</p>
+        </form>
       </div>
     </section>
 
   </main>
 
   <!-- ============ FOOTER ============ -->
-  <footer class="bg-rail">
+  <footer class="bg-[var(--rail)]">
     <div class="max-w-6xl mx-auto px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-8">
       <div class="col-span-2 md:col-span-1">
         <span class="font-display font-800 text-lg uppercase">Waveform</span>
-        <p class="font-mono text-xs text-dim mt-3 leading-relaxed">Hand-built eurorack modules.<br/>Karachi, Pakistan.</p>
+        <p class="font-mono text-xs text-[var(--dim)] mt-3 leading-relaxed">Hand-built eurorack modules.<br/>Karachi, Pakistan.</p>
       </div>
       <div>
         <h3 class="font-mono text-xs text-teal uppercase tracking-wide mb-3">Shop</h3>
-        <ul class="space-y-2 text-sm text-dim">
-          <li><a href="#modules" class="hover:text-ivory">Oscillators</a></li>
-          <li><a href="#modules" class="hover:text-ivory">Envelopes</a></li>
-          <li><a href="#modules" class="hover:text-ivory">Filters</a></li>
+        <ul class="space-y-2 text-sm text-[var(--dim)]">
+          <li><a href="#modules" class="hover:text-[var(--ivory)]">Oscillators</a></li>
+          <li><a href="#modules" class="hover:text-[var(--ivory)]">Envelopes</a></li>
+          <li><a href="#modules" class="hover:text-[var(--ivory)]">Filters</a></li>
         </ul>
       </div>
       <div>
         <h3 class="font-mono text-xs text-teal uppercase tracking-wide mb-3">Shop Notes</h3>
-        <ul class="space-y-2 text-sm text-dim">
-          <li><a href="#builds" class="hover:text-ivory">Build Log</a></li>
-          <li><a href="#signal" class="hover:text-ivory">From the Bench</a></li>
+        <ul class="space-y-2 text-sm text-[var(--dim)]">
+          <li><a href="#builds" class="hover:text-[var(--ivory)]">Build Log</a></li>
+          <li><a href="#signal" class="hover:text-[var(--ivory)]">From the Bench</a></li>
+          <li><a href="#faq" class="hover:text-[var(--ivory)]">FAQ</a></li>
         </ul>
       </div>
       <div>
         <h3 class="font-mono text-xs text-teal uppercase tracking-wide mb-3">Contact</h3>
-        <ul class="space-y-2 text-sm text-dim">
-          <li><a href="mailto:hello@waveformmodular.example" class="hover:text-ivory">hello@waveformmodular.example</a></li>
+        <ul class="space-y-2 text-sm text-[var(--dim)]">
+          <li><a href="mailto:hello@waveformmodular.example" class="hover:text-[var(--ivory)]">hello@waveformmodular.example</a></li>
         </ul>
       </div>
     </div>
-    <div class="border-t border-white/10">
-      <p class="max-w-6xl mx-auto px-6 py-5 font-mono text-[11px] text-dim">&copy; 2026 Waveform Modular Co. All patch cables sold separately.</p>
+    <div class="border-t border-[var(--border)]">
+      <p class="max-w-6xl mx-auto px-6 py-5 font-mono text-[11px] text-[var(--dim)]">&copy; 2026 Waveform Modular Co. All patch cables sold separately.</p>
     </div>
   </footer>
 
+  <script src="script.js" defer></script>
 </body>
 </html>
