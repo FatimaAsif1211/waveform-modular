@@ -6,17 +6,6 @@ A responsive, interactive landing page for a small eurorack synth-module shop. B
 
 ---
 
-## Lighthouse Scores
-
-| Category | Score |
-|----------|-------|
-| Performance | 98 |
-| Accessibility | 100 |
-| Best Practices | 100 |
-| SEO | 100 |
-
----
-
 ## Tech Stack
 
 - HTML5 (semantic markup)
@@ -92,8 +81,4 @@ This project is deployed on **Netlify** with continuous deployment from GitHub. 
 
 ---
 
-## Author
 
-**Fatima Asif** — [GitHub](https://github.com/FatimaAsif1211)
-
----
