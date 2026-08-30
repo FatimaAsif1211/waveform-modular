@@ -10,25 +10,63 @@
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-<!-- OpenGraph tags: control how the link looks when shared on WhatsApp, LinkedIn, etc. -->
+<!-- Preload Critical Resources -->
+<link rel="preload" as="image" href="og-image.png" fetchpriority="high">
+
+<!-- OpenGraph tags -->
 <meta property="og:type" content="website" />
 <meta property="og:title" content="Waveform Modular — Handbuilt Eurorack, Panel by Panel" />
 <meta property="og:description" content="Small-batch eurorack modules, hand-soldered in a two-person shop outside Karachi. Built to be patched, not preset." />
 <meta property="og:image" content="https://waveform-modular.netlify.app/og-image.png" />
 <meta property="og:url" content="https://waveform-modular.netlify.app/" />
 
-<!-- Twitter Card tags: same idea, for X/Twitter's preview format -->
+<!-- Twitter Card tags -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Waveform Modular — Handbuilt Eurorack, Panel by Panel" />
 <meta name="twitter:description" content="Small-batch eurorack modules, hand-soldered in a two-person shop outside Karachi." />
 <meta name="twitter:image" content="https://waveform-modular.netlify.app/og-image.png" />
 
-<!-- Compiled Tailwind CSS (built via CLI — no runtime compiler, unlike the Play CDN) -->
-<link rel="stylesheet" href="styles.css" />
+<!-- ============================================ -->
+<!-- CRITICAL CSS (loads instantly, non-blocking) -->
+<!-- ============================================ -->
+<style>
+  /* Prevent flash of unstyled content - these load instantly */
+  body { 
+    background: #f6f4ef; 
+    margin: 0;
+    padding: 0;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  /* Font fallbacks - text shows immediately */
+  .font-display { font-family: 'Big Shoulders Display', sans-serif; }
+  .font-body { font-family: 'IBM Plex Sans', sans-serif; }
+  .font-mono { font-family: 'IBM Plex Mono', monospace; }
+  /* Basic layout to prevent CLS */
+  .max-w-6xl { max-width: 72rem; margin-left: auto; margin-right: auto; }
+  .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+  /* Basic text colors */
+  .text-\[var\(--panel\)\] { color: #f6f4ef; }
+  .text-\[var\(--ivory\)\] { color: #201f1c; }
+  .text-\[var\(--dim\)\] { color: #6b655b; }
+  .text-\[var\(--amber\)\] { color: #8d5c1b; }
+  .text-\[var\(--teal\)\] { color: #336d68; }
+  .bg-\[var\(--panel\)\] { background-color: #f6f4ef; }
+</style>
 
+<!-- Full CSS loads asynchronously (non-blocking) -->
+<link rel="stylesheet" href="styles.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="styles.css"></noscript>
+
+<!-- ============================================ -->
+<!-- GOOGLE FONTS (loads asynchronously)          -->
+<!-- ============================================ -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400&family=IBM+Plex+Mono:wght@400&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400&family=IBM+Plex+Mono:wght@400&display=swap" media="print" onload="this.media='all'">
+<noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Sans:wght@400&family=IBM+Plex+Mono:wght@400&display=swap">
+</noscript>
 
 </head>
 
