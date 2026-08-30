@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --panel:  #F6F4EF;
+  --panel2: #FFFFFF;
+  --rail:   #ECE9E2;
+  --ivory:  #201F1C;
+  --dim:    #6B655B;
+  --border: rgba(0,0,0,0.12);
+  /* Darkened versions of the brand accents: the bright dark-mode
+     amber/teal fail WCAG AA contrast (2.4:1 / 2.6:1) against this
+     light background, so light mode uses a deeper shade of each. */
+  --amber:  #8D5C1B;
+  --teal:   #377570;
+}
+html.dark {
+  --panel:  #1C1B19;
+  --panel2: #232220;
+  --rail:   #141312;
+  --ivory:  #EDE9E3;
+  --dim:    #9C948A;
+  --border: rgba(255,255,255,0.1);
+  --amber:  #D98E2B;
+  --teal:   #4FA8A0;
+}
+
+html { scroll-behavior: smooth; }
+body { transition: background-color .25s ease, color .25s ease; }
+
+.rack-panel { position: relative; }
+.rack-panel::before,
+.rack-panel::after,
+.rack-panel .screw-tr,
+.rack-panel .screw-bl {
+  content: "";
+  position: absolute;
+  width: 7px; height: 7px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 35%, #6b665f, #29271f 70%);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.4);
+}
+.rack-panel::before { top: 10px; left: 10px; }
+.rack-panel::after  { bottom: 10px; right: 10px; }
+.rack-panel .screw-tr { top: 10px; right: 10px; }
+.rack-panel .screw-bl { bottom: 10px; left: 10px; }
+
+.led { box-shadow: 0 0 6px 2px currentColor; }
+
+.waveform-path {
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation: draw 2.4s cubic-bezier(.5,0,.2,1) forwards;
+}
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .waveform-path { animation: none; stroke-dashoffset: 0; }
+  html { scroll-behavior: auto; }
+}
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .3s ease;
+}
+.faq-answer.open { max-height: 200px; }
+.faq-icon { transition: transform .25s ease; }
+.faq-btn[aria-expanded="true"] .faq-icon { transform: rotate(45deg); }
