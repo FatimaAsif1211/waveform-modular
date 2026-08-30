@@ -15,12 +15,12 @@ A responsive, interactive landing page for a small eurorack synth-module shop. B
 
 ## Features
 
-- 🌗 **Light / dark mode** — toggle in the navbar, persists across page reloads via `localStorage`
-- 📱 **Responsive, mobile-first layout** — hamburger navigation on small screens, no horizontal scroll at any width
-- ❓ **FAQ accordion** — smooth expand/collapse, keyboard and screen-reader accessible (`aria-expanded`)
-- ✅ **Real-time form validation** — inline red/green feedback as the user types, before submission
-- 🎛️ Animated SVG oscilloscope trace in the hero section
-- 🔍 **SEO & social sharing ready** — descriptive meta tags, OpenGraph + Twitter Card previews, custom favicon
+-  **Light / dark mode** — toggle in the navbar, persists across page reloads via `localStorage`
+-  **Responsive, mobile-first layout** — hamburger navigation on small screens, no horizontal scroll at any width
+-  **FAQ accordion** — smooth expand/collapse, keyboard and screen-reader accessible (`aria-expanded`)
+-  **Real-time form validation** — inline red/green feedback as the user types, before submission
+-  Animated SVG oscilloscope trace in the hero section
+-  **SEO & social sharing ready** — descriptive meta tags, OpenGraph + Twitter Card previews, custom favicon
 
 ## Screenshots
 
